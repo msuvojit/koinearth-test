@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <title>KoineArth | File Upload</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <form enctype="multipart/form-data" style="margin: 50px">
+      <input id="csv-upload" type="file" name="csv-file" accept=".csv" />
+    </form>
+
+    <div id="csv-table"></div>
+
+    <script>
+      const inputElement = document.getElementById('csv-upload');
+      inputElement.addEventListener('change', handleCSVFileUpload, false);
+
+      function handleCSVFileUpload() {
+        const csvFileList = this.files;
+
+        for (let index = 0; index < csvFileList.length; index++) {
+          const csvFile = csvFileList[index];
+
+          var reader = new FileReader();
+
+          reader.onload = function () {
+            let csvString = reader.result;
+
+            var cells = csvString.split('\n').map(function (row) {
+              return row.split(';');
+            });
+
+            // pop the header from the cells array
+            var headArray = cells.shift();
+
+            // this is the table string
+            var tableString = `<table style="width:100%">
+      <tr>`;
+
+            var tableHeadStr = '';
+
+            var headItemArray = headArray[0].split(',');
+
+            for (let index = 0; index < headItemArray.length; index++) {
+              const element = headItemArray[index];
+
+              tableHeadStr = tableHeadStr + `<th>${element}</th>`;
+            }
+
+            tableString = tableString + tableHeadStr;
+
+            tableString =
+              tableString +
+              `
+      </tr>`;
+
+            var tableBodyString = `<tr>`;
+
+            var tableBodyString = getTableCellString({ cells });
+
+            tableString = tableString + tableBodyString + `</tr>`;
+
+            tableString = tableString + `</table>`;
+
+            document.getElementById('csv-table').innerHTML = tableString;
+          };
+
+          reader.readAsBinaryString(csvFile);
+        }
+      }
+
+      function getTableCellString({ cells }) {
+        var tableBodyString = '';
+
+        for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+          var cellItem = cells[cellIndex];
+          var cellArray = cellItem[0].split(',');
+
+          tableBodyString = tableBodyString + '<tr>';
+
+          for (let itemIndex = 0; itemIndex < cellArray.length; itemIndex++) {
+            const item = cellArray[itemIndex];
+
+            tableBodyString = tableBodyString + `<td>${item}</td>`;
+          }
+
+          tableBodyString = tableBodyString + '</tr>';
+        }
+
+        return tableBodyString;
+      }
+    </script>
+  </body>
+</html>
